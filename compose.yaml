@@ -1,0 +1,37 @@
+version: '3.8'
+# Aici definim serviciile (containerele) noastre
+services:
+  # Primul serviciu: baza de date PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: qa_postgres_db
+    environment:
+      POSTGRES_USER: qa_user
+      POSTGRES_PASSWORD: qa_pass
+      POSTGRES_DB: qa_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qa_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5  
+  cache:
+    image: redis:7-alpine
+    container_name: redis_cache    
+      # Al doilea serviciu: interfața de administrare
+  adminer:
+    image: adminer:latest
+    container_name: qa_adminer_ui
+    ports:
+      - "8888:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+# Aici definim volumele pe care le vom folosi
+volumes:
+  pg_data:
+
